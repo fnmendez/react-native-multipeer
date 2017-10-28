@@ -1,8 +1,5 @@
-import { EventEmitter } from 'events';
-
-export default class Peer extends EventEmitter {
+export default class Peer {
   constructor(id, name) {
-    super();
     this.id = id;
     this.name = name;
   }
