@@ -1,2 +1,2 @@
-import MultipeerConnection from './MultipeerConnection';
-module.exports = MultipeerConnection;
+import MultipeerConnection from './MultipeerConnection'
+module.exports = MultipeerConnection
