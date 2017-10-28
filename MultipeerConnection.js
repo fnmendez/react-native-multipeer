@@ -8,17 +8,21 @@ export default class MultipeerConnection extends EventEmitter {
   constructor() {
     super()
     this._peers = []
-    this._disconnectedPeers = []
+    this._disconnectedPeersIds = []
 
     this.get = peerId => this._peers.find(peer => peer.id === peerId)
     this.found = peer => this._peers.push(peer)
     this.connected = peer => (peer.connected = true)
-    this.disconnected = peer => {
-      peer.connected = false
-      this._disconnectedPeers.push(peer)
+    this.disconnected = peerId => {
+      const peer = this.get(peerId)
+      if (peer) peer.connected = false
+      if (!this._disconnectedPeersIds.includes(peerId))
+        this._disconnectedPeersIds.push(peerId)
     }
     this.lost = peer => {
       this._peers = this._peers.filter(p => p.id !== peer.id)
+      if (!this._disconnectedPeersIds.includes(peer.id))
+        this._disconnectedPeersIds.push(peer.id)
     }
 
     const peerFound = DeviceEventEmitter.addListener(
@@ -59,9 +63,8 @@ export default class MultipeerConnection extends EventEmitter {
     const peerDisconnected = DeviceEventEmitter.addListener(
       'RCTMultipeerConnectivityPeerDisconnected',
       (event => {
-        const peer = this.get(event.peer.id)
-        this.disconnected(peer)
-        this.emit('peerLeft', { peer })
+        this.disconnected(event.peer.id)
+        this.emit('peerLeft', { peerId: event.peer.id })
       }).bind(this)
     )
 
@@ -94,7 +97,7 @@ export default class MultipeerConnection extends EventEmitter {
   }
 
   getDisconnectedPeers() {
-    return this._disconnectedPeers
+    return this._disconnectedPeersIds
   }
 
   send(recipients, data, callback) {
