@@ -93,8 +93,8 @@ export default class MultipeerConnection extends EventEmitter {
     return this._peers
   }
 
-  getLostPeers() {
-    return this._lostPeers
+  getDisconnectedPeers() {
+    return this._disconnectedPeers
   }
 
   send(recipients, data, callback) {
